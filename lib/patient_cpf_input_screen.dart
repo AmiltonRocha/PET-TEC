@@ -139,11 +139,6 @@ class _CpfInputScreenState extends State<CpfInputScreen> {
                         onPressed: () {
                           // Colocar aqui lógica para CPF
                           print('CPF confirmado: ${_cpfMaskFormatter.getMaskedText()}');
-
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const PatientDetailScreen()),
-                          );
                         },
                         child: const Text(
                           'Confirmar',
