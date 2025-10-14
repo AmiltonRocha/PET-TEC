@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import 'patient_family_member_confirmation.dart';
+import 'patient_detail_screen.dart';
+import 'professional_patient_form_screen.dart';
 
 class CpfInputScreen extends StatefulWidget {
   const CpfInputScreen({super.key});
@@ -10,10 +11,8 @@ class CpfInputScreen extends StatefulWidget {
 }
 
 class _CpfInputScreenState extends State<CpfInputScreen> {
-  // Controlador para o campo de texto do CPF
   final TextEditingController _cpfController = TextEditingController();
 
-  
   final _cpfMaskFormatter = MaskTextInputFormatter(
     mask: '###.###.###-##',
     filter: {"#": RegExp(r'[0-9]')},
@@ -35,7 +34,7 @@ class _CpfInputScreenState extends State<CpfInputScreen> {
       backgroundColor: vibrantBlue,
       body: Stack(
         children: [
-          // Círculo decorativos no fundo
+          // Círculo
           Positioned(
             top: -80,
             left: -80,
@@ -171,7 +170,7 @@ class _CpfInputScreenState extends State<CpfInputScreen> {
 
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const FamilyMemberConfirmationScreen()),
+                            MaterialPageRoute(builder: (context) => const PatientFormScreen()),
                           );
                         },
                         child: const Text(

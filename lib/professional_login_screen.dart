@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'professional_cpf_input_screen.dart';
 
 class ProfessionalLoginScreen extends StatefulWidget {
   const ProfessionalLoginScreen({super.key});
@@ -8,7 +9,6 @@ class ProfessionalLoginScreen extends StatefulWidget {
 }
 
 class _ProfessionalLoginScreenState extends State<ProfessionalLoginScreen> {
-  // Controlador para o campo de texto
   final TextEditingController _authCodeController = TextEditingController();
 
   @override
@@ -29,7 +29,7 @@ class _ProfessionalLoginScreenState extends State<ProfessionalLoginScreen> {
       backgroundColor: Colors.grey[50],
       body: Stack(
         children: [
-          // Elementos gráficos de círculo no fundo
+          // Círculos de fundo
           Positioned(
             top: -50,
             left: -50,
@@ -113,7 +113,6 @@ class _ProfessionalLoginScreenState extends State<ProfessionalLoginScreen> {
                       ),
                     ),
 
-                  // Bloco inferior (campo de texto e botão)
                   Column(
                     children: [
                       // Campo de texto para o código
@@ -151,6 +150,11 @@ class _ProfessionalLoginScreenState extends State<ProfessionalLoginScreen> {
                           print('Código digitado: ${_authCodeController.text}');
                           /* Ainda tem que colocar a lógica para validar o código, mas sendo honesto não sei se é uma
                              boa ideia o "profissional" ter que colocar o código, ao menos agora */
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const CpfInputScreen()),
+                          );
                         },
                         child: const Text(
                           'ENTRAR',
