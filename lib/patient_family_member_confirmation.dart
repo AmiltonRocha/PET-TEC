@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'patient_family_form.dart';
 
 class FamilyMemberConfirmationScreen extends StatefulWidget {
   const FamilyMemberConfirmationScreen({super.key});
@@ -138,6 +139,11 @@ class _FamilyMemberConfirmationScreenState
                       onPressed: () {
                         // Lógica para confirmar os dados
                         print('Nome do familiar: ${_nameController.text}');
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const FamilyFormScreen()),
+                        );
                       },
                       child: const Text('Confirmar',
                           style: TextStyle(
