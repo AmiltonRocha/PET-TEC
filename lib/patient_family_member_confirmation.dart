@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'patient_family_form.dart';
 
 class FamilyMemberConfirmationScreen extends StatefulWidget {
-  const FamilyMemberConfirmationScreen({super.key});
+  final String cpfDoPaciente;
+  const FamilyMemberConfirmationScreen({
+    super.key,
+    required this.cpfDoPaciente,
+  });
 
   @override
   State<FamilyMemberConfirmationScreen> createState() =>
@@ -142,7 +146,10 @@ class _FamilyMemberConfirmationScreenState
 
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const FamilyFormScreen()),
+                          MaterialPageRoute(builder: (context) => FamilyFormScreen(
+                            cpf: widget.cpfDoPaciente,
+                            name: _nameController.text
+                          )),
                         );
                       },
                       child: const Text('Confirmar',

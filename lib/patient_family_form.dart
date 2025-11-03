@@ -1,12 +1,24 @@
+// Import Flutter
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+// Import de outras paginas
+import 'patient_cpf_input_screen.dart';
+import "patient_family_member_confirmation.dart";
+
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 // Enums para melhorar a legibilidade
 enum Sexo { feminino, masculino }
 enum RespostaSimNao { sim, nao }
 
 class FamilyFormScreen extends StatefulWidget {
-  const FamilyFormScreen({super.key});
+  final String cpf;
+  final String name;
+  const FamilyFormScreen({
+    super.key,
+    required this.cpf,
+    required this.name});
 
   @override
   State<FamilyFormScreen> createState() => _FamilyFormScreenState();
@@ -69,6 +81,105 @@ class _FamilyFormScreenState extends State<FamilyFormScreen> {
     _altaMedicamentoController.dispose();
     _usoDiarioMedicamentoController.dispose();
     super.dispose();
+  }
+
+  String _getCheckedItems(Map<String, bool> map) {
+    return map.entries
+        .where((entry) => entry.value)
+        .map((entry) => entry.key)
+        .join(', ');
+  }
+
+  String? _formatApiDate(String dateString) {
+    if (dateString.isEmpty) return null;
+    try {
+      final date = DateFormat('dd/MM/yyyy').parse(dateString);
+      return date.toIso8601String();
+    } catch (e) {
+      return null;
+    }
+  }
+
+  bool _isLoading = false; // n chamar submitForm enquanto ele esta ativo
+
+  Future<void> _submitForm() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    String sequelasCombinadas = _getCheckedItems(_sequelas);
+    if (_sequelasOutrasController.text.isNotEmpty) {
+      if (sequelasCombinadas.isNotEmpty) {
+        sequelasCombinadas += ', ${_sequelasOutrasController.text}';
+      } else {
+        sequelasCombinadas = _sequelasOutrasController.text;
+      }
+    }
+
+    final Map<String, dynamic> formData = {
+      "nome": widget.name,
+      "cpf": widget.cpf,
+      "sexo": _sexo?.name,
+      "faixa_etaria": _faixaEtaria,
+      "grau_parentesco": _grauParentesco,
+      "data_inicio_sintomas": _formatApiDate(_inicioSintomasController.text),
+      "tempo_chegada_hospital": _tempoChegadaHospitalController.text,
+      "sequelas": sequelasCombinadas,
+      "alta_medicamento": _altaPrescritoMedicamento == RespostaSimNao.sim,
+      "alta_medicamento_qual": _altaMedicamentoController.text,
+    };
+    if (!_isCuidadorExterno) {
+      formData.addAll({
+        "comorbidades": _getCheckedItems(_comorbidadesPaciente),
+        "historico_familiar": _getCheckedItems(_historicoFamiliar),
+        "medicamento_uso_diario": _medicamentoUsoDiario == RespostaSimNao.sim,
+        "medicamento_uso_diario_qual": _usoDiarioMedicamentoController.text,
+      });
+    }
+
+    const String apiUrl = 'http://localhost:3050/db/forms/postForm';
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(formData),
+      );
+
+      if (!mounted) return;
+
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Formulário salvo com sucesso'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context);
+      } else {
+        final errorData = jsonDecode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro: ${errorData['message']}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro de conexão: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -153,11 +264,7 @@ class _FamilyFormScreenState extends State<FamilyFormScreen> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
                       padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 16),
                     ),
-                    onPressed: () {
-
-                       // Ainda precisa da lógica dos dados
-                       
-                    },
+                    onPressed: _isLoading ? null : _submitForm,
                     child: const Text('Confirmar', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   ),
                 )

@@ -166,7 +166,7 @@ class _CpfInputScreenState extends State<CpfInputScreen> {
 
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const FamilyMemberConfirmationScreen()),
+                            MaterialPageRoute(builder: (context) => FamilyMemberConfirmationScreen(cpfDoPaciente: _cpfController.text)),
                           );
                         },
                         child: const Text(
