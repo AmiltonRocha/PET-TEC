@@ -76,7 +76,7 @@ class _CpfInputScreenState extends State<CpfInputScreen> {
                       borderRadius: BorderRadius.circular(30.0),
                     ),
                     child: const Text(
-                      'Digite o CPF do Paciente',
+                      'Digite o CPF do PacienteLOL',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.white,
@@ -136,12 +136,17 @@ class _CpfInputScreenState extends State<CpfInputScreen> {
                     children: [
                       TextButton(
                         onPressed: () {
-                          // Colocar aqui lógica para CPF
-                          print('CPF confirmado: ${_cpfMaskFormatter.getMaskedText()}');
+                          // Pega o CPF que o profissional digitou
+                          final String cpf = _cpfController.text;
+                          
+                          print('CPF confirmado: $cpf');
 
+                          // Envia o CPF para a tela de Detalhes
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const PatientDetailScreen()),
+                            MaterialPageRoute(
+                              builder: (context) => PatientDetailScreen(cpf: cpf),
+                            ),
                           );
                         },
                         child: const Text(
@@ -165,12 +170,17 @@ class _CpfInputScreenState extends State<CpfInputScreen> {
                           minimumSize: const Size(double.infinity, 50),
                         ),
                         onPressed: () {
-                          // Colocar aqui lógica para registro
-                          print('Navegando para tela de registro...');
+                          // Pega o CPF que o usuário digitou
+                          final String cpf = _cpfController.text;
+                          
+                          print('Navegando para tela de registro com o CPF: $cpf');
 
+                          // Envia o CPF para o construtor da PatientFormScreen
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const PatientFormScreen()),
+                            MaterialPageRoute(
+                              builder: (context) => PatientFormScreen(initialCpf: cpf),
+                            ),
                           );
                         },
                         child: const Text(

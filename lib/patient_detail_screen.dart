@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'professional_patient_form_screen.dart'; 
 
 class PatientDetailScreen extends StatelessWidget {
-  const PatientDetailScreen({super.key});
+  final String cpf;
+
+  const PatientDetailScreen({
+    super.key,
+    required this.cpf,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -14,15 +20,15 @@ class PatientDetailScreen extends StatelessWidget {
       body: Column(
         children: [
           _buildHeader(primaryBlue, lightBlue, context),
-
           Expanded(
             child: Container(
               color: backgroundColor,
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    _buildButtonsSection(),
-                    _buildAnnotationsSection(),
+                    // Passa o 'context' e o 'cpf' para a seção de botões
+                    _buildButtonsSection(context, cpf), 
+                    _buildAnnotationsSection(context),
                   ],
                 ),
               ),
@@ -85,7 +91,7 @@ class PatientDetailScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   const Text(
-                    'Sr. João da Silva e Souza',
+                    'Sr. João da Silva e Souza', // Aqui tá estático
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 22,
@@ -94,7 +100,7 @@ class PatientDetailScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   const Text(
-                    'Risco: Médio',
+                    'Risco: Médio', // Aqui tá estático
                     style: TextStyle(
                       color: Colors.white70,
                       fontSize: 16,
@@ -109,30 +115,59 @@ class PatientDetailScreen extends StatelessWidget {
     );
   }
 
-  // Widget para a seção de botões
-  Widget _buildButtonsSection() {
+  Widget _buildButtonsSection(BuildContext context, String cpf) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
           Row(
             children: [
-              Expanded(child: _buildSmallButton('Visualizar Dados')),
+              Expanded(
+                child: _buildSmallButton(
+                  'Visualizar Dados',
+                  () {
+                    print('Visualizando dados...');
+                  },
+                ),
+              ),
               const SizedBox(width: 16),
-              Expanded(child: _buildSmallButton('Atualiza Dados')),
+              Expanded(
+                child: _buildSmallButton(
+                  'Atualiza Dados',
+                  () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PatientFormScreen(initialCpf: cpf),
+                      ),
+                    );
+                  },
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
-          _buildLargeButton('Cadastrar Saída', isPrimary: true),
+          _buildLargeButton(
+            'Cadastrar Saída',
+            () {
+              print('Cadastrando saída...');
+            },
+            isPrimary: true,
+          ),
           const SizedBox(height: 12),
-          _buildLargeButton('LEITO A34'),
+          _buildLargeButton(
+            'LEITO A34',
+            () {
+              print('Abrindo detalhes do leito...');
+            },
+          ),
         ],
       ),
     );
   }
 
   // Widget para a seção de anotações
-  Widget _buildAnnotationsSection() {
+  Widget _buildAnnotationsSection(BuildContext context) {
     const Color textColor = Color(0xFF333333);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 30.0),
@@ -148,16 +183,16 @@ class PatientDetailScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          _buildInfoCard(textColor),
+          // Passa o 'context' para o card de informações
+          _buildInfoCard(textColor, context),
         ],
       ),
     );
   }
 
-
-  Widget _buildSmallButton(String text) {
+  Widget _buildSmallButton(String text, VoidCallback onPressed) {
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color(0xFFB2EBF2),
         foregroundColor: const Color(0xFF00796B),
@@ -167,10 +202,11 @@ class PatientDetailScreen extends StatelessWidget {
       child: Text(text, style: const TextStyle(fontWeight: FontWeight.bold)),
     );
   }
-  
-  Widget _buildLargeButton(String text, {bool isPrimary = false}) {
+
+  Widget _buildLargeButton(String text, VoidCallback onPressed,
+      {bool isPrimary = false}) {
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: isPrimary ? const Color(0xFF80DEEA) : const Color(0xFFB2EBF2),
         foregroundColor: isPrimary ? const Color(0xFF006064) : const Color(0xFF00796B),
@@ -181,8 +217,8 @@ class PatientDetailScreen extends StatelessWidget {
       child: Text(text, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
     );
   }
-  
-  Widget _buildInfoCard(Color textColor) {
+
+  Widget _buildInfoCard(Color textColor, BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
@@ -210,12 +246,20 @@ class PatientDetailScreen extends StatelessWidget {
                   color: textColor,
                 ),
               ),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.greenAccent.withOpacity(0.2),
-                  shape: BoxShape.circle,
+              InkWell(
+                onTap: () {
+                  // Ação para adicionar anotação
+                  print('Adicionar nova anotação...');
+                },
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.greenAccent.withOpacity(0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.add, color: Colors.green, size: 28),
                 ),
-                child: const Icon(Icons.add, color: Colors.green, size: 28),
               )
             ],
           ),
@@ -237,7 +281,11 @@ class PatientDetailScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: TextStyle(fontSize: 15, color: Colors.grey[600])),
-          Text(value, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87)),
+          Text(value,
+              style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87)),
         ],
       ),
     );

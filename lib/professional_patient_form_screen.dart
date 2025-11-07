@@ -1,5 +1,8 @@
+// professional_patient_form_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 enum Sexo { feminino, masculino }
 enum RespostaSimNao { sim, nao }
@@ -8,13 +11,27 @@ enum TipoAVC { isquemico, hemorragico }
 enum Desfecho { internado, transferido, alta, obito }
 
 class PatientFormScreen extends StatefulWidget {
-  const PatientFormScreen({super.key});
+  final String? initialCpf;
+
+  const PatientFormScreen({
+    super.key,
+    this.initialCpf, // Torna o CPF opcional no construtor
+  });
 
   @override
   State<PatientFormScreen> createState() => _PatientFormScreenState();
 }
 
 class _PatientFormScreenState extends State<PatientFormScreen> {
+  final _nomeController = TextEditingController();
+  final _cpfController = TextEditingController();
+
+  // Máscara
+  final _cpfMaskFormatter = MaskTextInputFormatter(
+    mask: '###.###.###-##',
+    filter: {"#": RegExp(r'[0-9]')},
+  );
+
   final _inicioSintomasController = TextEditingController();
   final _dataAvcController = TextEditingController();
   final _tempoVmController = TextEditingController();
@@ -41,31 +58,19 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
   String? _consumoAlcool;
 
   // Mapas para os grupos de checkboxes
-  final Map<String, bool> _medicamentosUtilizados = {
-    'Antiagregante plaquetário': false, 'Anticoagulante': false, 'Trombolítico': false,
-    'Estatina': false, 'Anti-hipertensivo': false, 'Diurético': false, 'Anticonvulsivante': false,
-  };
+  final Map<String, bool> _medicamentosUtilizados = { 'Antiagregante plaquetário': false, 'Anticoagulante': false, 'Trombolítico': false, 'Estatina': false, 'Anti-hipertensivo': false, 'Diurético': false, 'Anticonvulsivante': false, };
+  final Map<String, bool> _sequelas = { 'Disfagia': false, 'Parestesia parcial': false, 'Parestesia total': false, 'Paralisia parcial': false, 'Paralisia total': false, 'Perda da memória': false, 'Perda da visão': false, 'Afasia': false, };
+  final Map<String, bool> _comorbidades = { 'Diabetes': false, 'Hipertensão': false, 'Obesidade': false, 'Infarto agudo do miocárdio': false, 'Insuficiência cardíaca': false, 'AVC': false, };
+  final Map<String, bool> _historicoFamiliar = { 'Diabetes': false, 'Hipertensão': false, 'Sedentarismo': false, 'Obesidade': false, 'Infarto agudo do miocárdio': false, 'Insuficiência cardíaca': false, 'Etilista': false, 'Fumante': false, 'AVC': false, };
+  final Map<String, bool> _alimentacao = { 'Frituras': false, 'Embutidos': false, 'Comidas muito salgadas': false, 'Doces em excesso': false, };
 
-  final Map<String, bool> _sequelas = {
-    'Disfagia': false, 'Parestesia parcial': false, 'Parestesia total': false,
-    'Paralisia parcial': false, 'Paralisia total': false, 'Perda da memória': false,
-    'Perda da visão': false, 'Afasia': false,
-  };
-
-  final Map<String, bool> _comorbidades = {
-    'Diabetes': false, 'Hipertensão': false, 'Obesidade': false,
-    'Infarto agudo do miocárdio': false, 'Insuficiência cardíaca': false, 'AVC': false,
-  };
-  
-  final Map<String, bool> _historicoFamiliar = {
-    'Diabetes': false, 'Hipertensão': false, 'Sedentarismo': false, 'Obesidade': false,
-    'Infarto agudo do miocárdio': false, 'Insuficiência cardíaca': false,
-    'Etilista': false, 'Fumante': false, 'AVC': false,
-  };
-
-  final Map<String, bool> _alimentacao = {
-    'Frituras': false, 'Embutidos': false, 'Comidas muito salgadas': false, 'Doces em excesso': false,
-  };
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialCpf != null) {
+      _cpfController.text = _cpfMaskFormatter.maskText(widget.initialCpf!);
+    }
+  }
 
   Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
     final DateTime? picked = await showDatePicker(
@@ -83,6 +88,10 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
 
   @override
   void dispose() {
+    // Incluindo os controladores de nome e cpf
+    _nomeController.dispose();
+    _cpfController.dispose();
+
     _inicioSintomasController.dispose();
     _dataAvcController.dispose();
     _tempoVmController.dispose();
@@ -118,6 +127,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                     child: const Center(child: Text('Preencha os dados a seguir', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87))),
                   ),
                 ),
+                
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -128,6 +138,16 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _buildSectionTitle('Identificação'),
+
+                          // Campos de Nome e CPF
+                          _buildTextField('Nome do Paciente:', _nomeController),
+                          _buildTextField(
+                            'CPF:',
+                            _cpfController,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [_cpfMaskFormatter],
+                          ),
+
                           _buildRadioGroup<Sexo>(
                             options: {'Feminino': Sexo.feminino, 'Masculino': Sexo.masculino},
                             groupValue: _sexo,
@@ -175,7 +195,8 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                     ),
                   ),
                 ),
-                // Botão de confirmar
+                
+                // Botão Confirmar
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
                   child: ElevatedButton(
@@ -184,14 +205,15 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
                       padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 16),
                     ),
-                    onPressed: () { /* Lógica para salvar os dados do formulário */ },
+                    onPressed: () { /* Aqui é a Lógica para salvar os dados do formulário */ },
                     child: const Text('Confirmar', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   ),
                 )
               ],
             ),
           ),
-          // Botão de voltar
+          
+          // Botão Voltar
           Positioned(
             bottom: 30, left: 20,
             child: IconButton(
@@ -204,7 +226,6 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
     );
   }
 
-
   Widget _buildSectionTitle(String title) => Padding(
     padding: const EdgeInsets.only(top: 24.0, bottom: 8.0),
     child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF007BFF))),
@@ -215,13 +236,13 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (title != null) Padding(padding: const EdgeInsets.symmetric(vertical: 8.0), child: Text(title, style: const TextStyle(fontWeight: FontWeight.w600))),
-        Wrap( // Usa Wrap para quebra de linha
+        Wrap(
           spacing: 8.0,
           runSpacing: 0.0,
           children: options.entries.map((entry) => Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Radio<T>(value: entry.value, groupValue: groupValue, onChanged: onChanged),
+              Radio<T>(value: entry.value, groupValue: groupValue, onChanged: onChanged, activeColor: const Color(0xFF007BFF)),
               Text(entry.key),
             ],
           )).toList(),
@@ -242,7 +263,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
             return Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Checkbox(value: options[key], onChanged: (bool? value) => setState(() => options[key] = value!)),
+                Checkbox(value: options[key], onChanged: (bool? value) => setState(() => options[key] = value!), activeColor: const Color(0xFF007BFF)),
                 Text(key),
               ],
             );
@@ -256,17 +277,24 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
     padding: const EdgeInsets.symmetric(vertical: 8.0),
     child: TextFormField(
       controller: controller,
-      decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
+      decoration: InputDecoration(labelText: label, border: const OutlineInputBorder(), suffixIcon: const Icon(Icons.calendar_today)),
       readOnly: true,
       onTap: () => _selectDate(context, controller),
     ),
   );
 
-  Widget _buildTextField(String label, TextEditingController controller) => Padding(
+  Widget _buildTextField(
+    String label, 
+    TextEditingController controller, 
+    {TextInputType keyboardType = TextInputType.text,
+     List<TextInputFormatter>? inputFormatters}
+  ) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 8.0),
     child: TextFormField(
       controller: controller,
       decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
+      keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
     ),
   );
 

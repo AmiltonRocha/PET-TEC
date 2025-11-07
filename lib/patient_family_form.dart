@@ -2,8 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 // Import de outras paginas
-import 'patient_cpf_input_screen.dart';
-import "patient_family_member_confirmation.dart";
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;

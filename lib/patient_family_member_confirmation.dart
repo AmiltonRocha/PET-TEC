@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'patient_family_form.dart';
+import 'package:flutter/services.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'patient_family_form.dart'; // Import da sua próxima tela
 
 class FamilyMemberConfirmationScreen extends StatefulWidget {
   final String cpfDoPaciente;
@@ -15,11 +17,35 @@ class FamilyMemberConfirmationScreen extends StatefulWidget {
 
 class _FamilyMemberConfirmationScreenState
     extends State<FamilyMemberConfirmationScreen> {
+  // Controlador para o nome do acompanhante
   final _nameController = TextEditingController();
+
+  final _pacienteCpfController = TextEditingController();
+  final _pacienteNomeController = TextEditingController();
+  final _pacienteNascimentoController = TextEditingController();
+  final _pacienteContatoController = TextEditingController();
+
+  final _cpfMaskFormatter = MaskTextInputFormatter(
+      mask: '###.###.###-##', filter: {"#": RegExp(r'[0-9]')});
+  final _nascimentoMaskFormatter = MaskTextInputFormatter(
+      mask: '##/##/####', filter: {"#": RegExp(r'[0-9]')});
+  final _contatoMaskFormatter = MaskTextInputFormatter(
+      mask: '(##) #####-####', filter: {"#": RegExp(r'[0-9]')});
+
+  @override
+  void initState() {
+    super.initState();
+    // Pré-preenche o campo CPF com o valor recebido da tela anterior
+    _pacienteCpfController.text = _cpfMaskFormatter.maskText(widget.cpfDoPaciente);
+  }
 
   @override
   void dispose() {
     _nameController.dispose();
+    _pacienteCpfController.dispose();
+    _pacienteNomeController.dispose();
+    _pacienteNascimentoController.dispose();
+    _pacienteContatoController.dispose();
     super.dispose();
   }
 
@@ -55,7 +81,8 @@ class _FamilyMemberConfirmationScreenState
           // Conteúdo Principal
           SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -91,7 +118,7 @@ class _FamilyMemberConfirmationScreenState
                         borderRadius: BorderRadius.circular(30.0)),
                     child: const Center(
                       child: Text(
-                        'Preencha os dados a seguir',
+                        'Preencha os dados do paciente',
                         style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -101,7 +128,6 @@ class _FamilyMemberConfirmationScreenState
                   ),
                   const SizedBox(height: 20),
 
-                  // Card de informações do paciente
                   Container(
                     padding: const EdgeInsets.all(20.0),
                     decoration: BoxDecoration(
@@ -117,13 +143,36 @@ class _FamilyMemberConfirmationScreenState
                     ),
                     child: Column(
                       children: [
-                        _buildInfoRow('CPF:', '123.456.789-10'),
+                        _buildTextFormField(
+                          controller: _pacienteCpfController,
+                          label: 'CPF do Paciente',
+                          hint: '000.000.000-00',
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [_cpfMaskFormatter],
+                        ),
                         const SizedBox(height: 12),
-                        _buildInfoRow('Nascimento:', '12/03/1965'),
+                        _buildTextFormField(
+                          controller: _pacienteNomeController,
+                          label: 'Nome do Paciente',
+                          hint: 'Nome completo do paciente',
+                          keyboardType: TextInputType.text,
+                        ),
                         const SizedBox(height: 12),
-                        _buildInfoRow('Contato:', '(85) 99681-4658'),
+                        _buildTextFormField(
+                          controller: _pacienteNascimentoController,
+                          label: 'Nascimento do Paciente',
+                          hint: 'DD/MM/AAAA',
+                          keyboardType: TextInputType.datetime,
+                          inputFormatters: [_nascimentoMaskFormatter],
+                        ),
                         const SizedBox(height: 12),
-                        _buildInfoRow('Nome:', 'José da Silva e Sousa'),
+                        _buildTextFormField(
+                          controller: _pacienteContatoController,
+                          label: 'Contato (do Paciente ou Resp.)',
+                          hint: '(00) 00000-0000',
+                          keyboardType: TextInputType.phone,
+                          inputFormatters: [_contatoMaskFormatter],
+                        ),
                       ],
                     ),
                   ),
@@ -143,13 +192,17 @@ class _FamilyMemberConfirmationScreenState
                       onPressed: () {
                         // Lógica para confirmar os dados
                         print('Nome do familiar: ${_nameController.text}');
+                        print(
+                            'CPF Paciente: ${_pacienteCpfController.text}');
+                        print(
+                            'Nome Paciente: ${_pacienteNomeController.text}');
 
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => FamilyFormScreen(
-                            cpf: widget.cpfDoPaciente,
-                            name: _nameController.text
-                          )),
+                          MaterialPageRoute(
+                              builder: (context) => FamilyFormScreen(
+                                  cpf: widget.cpfDoPaciente,
+                                  name: _nameController.text)),
                         );
                       },
                       child: const Text('Confirmar',
@@ -177,36 +230,43 @@ class _FamilyMemberConfirmationScreenState
     );
   }
 
-  // Widget auxiliar para criar as linhas de informação
-  Widget _buildInfoRow(String label, String value) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade200,
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      child: Row(
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.grey.shade700,
-            ),
+  Widget _buildTextFormField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required TextInputType keyboardType,
+    List<TextInputFormatter>? inputFormatters,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.grey.shade700,
+            fontSize: 16,
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              value,
-              textAlign: TextAlign.right,
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-              ),
+        ),
+        const SizedBox(height: 6),
+        TextFormField(
+          controller: controller,
+          inputFormatters: inputFormatters,
+          keyboardType: keyboardType,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.grey.shade200,
+            hintText: hint,
+            hintStyle: TextStyle(color: Colors.grey.shade500),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.0),
+              borderSide: BorderSide.none,
             ),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
