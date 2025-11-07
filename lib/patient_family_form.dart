@@ -135,7 +135,7 @@ class _FamilyFormScreenState extends State<FamilyFormScreen> {
       });
     }
 
-    const String apiUrl = 'http://localhost:3050/db/forms/postForm';
+    const String apiUrl = 'https://petsaudeg3.loca.lt/db/forms/postForm';
 
     try {
       final response = await http.post(
