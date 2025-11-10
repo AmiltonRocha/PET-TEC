@@ -1,13 +1,43 @@
 import 'package:flutter/material.dart';
-import 'professional_patient_form_screen.dart'; 
 
 class PatientDetailScreen extends StatelessWidget {
   final String cpf;
+  final Map<String, dynamic> patientData;
 
   const PatientDetailScreen({
     super.key,
     required this.cpf,
+    required this.patientData,
   });
+
+  // Função auxiliar para formatar a data (opcional, mas recomendado)
+  String _formatDate(String? isoDate) {
+    if (isoDate == null || isoDate.isEmpty) {
+      return 'N/A';
+    }
+    try {
+      final DateTime date = DateTime.parse(isoDate);
+      // Formata para Dia/Mês/Ano
+      return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+    } catch (e) {
+      // Se a data não estiver no formato ISO (ex: "weqqqqqq"), retorna o texto original
+      return isoDate;
+    }
+  }
+
+  // Função auxiliar para verificar 'Sim' (considerando boolean ou String)
+  bool _isYes(dynamic value) {
+    if (value == null) return false;
+    if (value is bool) return value;
+    if (value is String) return value.toLowerCase() == 'sim';
+    return false;
+  }
+
+  // Função auxiliar para exibir o valor ou 'N/A' se estiver vazio
+  String _displayValue(String? value) {
+    return (value == null || value.isEmpty) ? 'N/A' : value;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -19,16 +49,14 @@ class PatientDetailScreen extends StatelessWidget {
       backgroundColor: primaryBlue,
       body: Column(
         children: [
-          _buildHeader(primaryBlue, lightBlue, context),
+          _buildHeader(primaryBlue, lightBlue, context, patientData),
           Expanded(
             child: Container(
               color: backgroundColor,
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    // Passa o 'context' e o 'cpf' para a seção de botões
-                    _buildButtonsSection(context, cpf), 
-                    _buildAnnotationsSection(context),
+                    _buildAnnotationsSection(context, patientData),
                   ],
                 ),
               ),
@@ -39,7 +67,7 @@ class PatientDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(Color primaryBlue, Color lightBlue, BuildContext context) {
+  Widget _buildHeader(Color primaryBlue, Color lightBlue, BuildContext context, Map<String, dynamic> patientData) {
     return SafeArea(
       bottom: false,
       child: Container(
@@ -92,8 +120,8 @@ class PatientDetailScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  const Text(
-                    'Sr. João da Silva e Souza', // Aqui tá estático
+                  Text(
+                    patientData['nome']?.toString() ?? 'Paciente', // Chave do JSON
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 22,
@@ -101,8 +129,8 @@ class PatientDetailScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    'Risco: Médio', // Aqui tá estático
+                  Text(
+                    'Faixa Etária: ${patientData['faixa_etaria']?.toString() ?? 'N/A'}', // Chave do JSON
                     style: TextStyle(
                       color: Colors.white70,
                       fontSize: 16,
@@ -117,75 +145,8 @@ class PatientDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildButtonsSection(BuildContext context, String cpf) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          // Botões pequenos centralizados e mais compactos
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: MediaQuery.of(context).size.width * 0.35,
-                child: _buildSmallButton(
-                  'Visualizar Dados',
-                  () {
-                    print('Visualizando dados...');
-                  },
-                ),
-              ),
-              const SizedBox(width: 16),
-              SizedBox(
-                width: MediaQuery.of(context).size.width * 0.35,
-                child: _buildSmallButton(
-                  'Atualiza Dados',
-                  () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PatientFormScreen(initialCpf: cpf),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          // Botão Cadastrar Saída (mais compacto)
-          Center(
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.35,
-              child: _buildLargeButton(
-                'Cadastrar Saída',
-                () {
-                  print('Cadastrando saída...');
-                },
-                isPrimary: true,
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          // Botão LEITO A34 (mais compacto)
-          Center(
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.35,
-              child: _buildLargeButton(
-                'LEITO A34',
-                () {
-                  print('Abrindo detalhes do leito...');
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   // Widget para a seção de anotações
-  Widget _buildAnnotationsSection(BuildContext context) {
+  Widget _buildAnnotationsSection(BuildContext context, Map<String, dynamic> patientData) {
     const Color textColor = Color(0xFF333333);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 30.0),
@@ -202,52 +163,17 @@ class PatientDetailScreen extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           // Passa o 'context' para o card de informações
-          _buildInfoCard(textColor, context),
+          _buildInfoCard(textColor, context, patientData),
         ],
       ),
     );
   }
 
-  Widget _buildSmallButton(String text, VoidCallback onPressed) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFFB2EBF2),
-        foregroundColor: const Color(0xFF00796B),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        padding: const EdgeInsets.symmetric(vertical: 12),
-      ),
-      child: Text(
-        text,
-        style: const TextStyle(fontWeight: FontWeight.bold),
-        textAlign: TextAlign.center,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
+  Widget _buildInfoCard(Color textColor, BuildContext context, Map<String, dynamic> patientData) {
+    // Variáveis para controlar a visibilidade dos campos condicionais
+    final bool altaComMedicamento = _isYes(patientData['alta_medicamento']);
+    final bool usaMedicamentoDiario = _isYes(patientData['medicamento_uso_diario']);
 
-  Widget _buildLargeButton(String text, VoidCallback onPressed,
-      {bool isPrimary = false}) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isPrimary ? const Color(0xFF80DEEA) : const Color(0xFFB2EBF2),
-        foregroundColor: isPrimary ? const Color(0xFF006064) : const Color(0xFF00796B),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        padding: const EdgeInsets.symmetric(vertical: 16),
-      ),
-      child: Text(
-        text,
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        textAlign: TextAlign.center,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
-
-  Widget _buildInfoCard(Color textColor, BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
@@ -293,11 +219,43 @@ class PatientDetailScreen extends StatelessWidget {
             ],
           ),
           const Divider(height: 24),
-          _buildInfoRow('Idade:', '60 Anos'),
-          _buildInfoRow('Tipo do AVC:', 'Isquêmico'),
-          _buildInfoRow('Data de Entrada:', '12/07/2025'),
-          _buildInfoRow('Profissional responsável:', 'Isabel Enfermeira'),
-          _buildInfoRow('Familiar responsável:', 'Maria Francisca e Souza'),
+          // Usando as chaves do JSON
+          _buildInfoRow('Sexo:', _displayValue(patientData['sexo']?.toString())),
+          _buildInfoRow('Início Sintomas:', _formatDate(patientData['data_inicio_sintomas']?.toString())),
+          _buildInfoRow('Chegada Hospital:', _displayValue(patientData['tempo_chegada_hospital']?.toString())),
+          _buildInfoRow('Sequelas:', _displayValue(patientData['sequelas']?.toString())),
+          // Campo novo
+          _buildInfoRow('Outras Sequelas:', _displayValue(patientData['sequelas_outras']?.toString())),
+          _buildInfoRow('Comorbidades:', _displayValue(patientData['comorbidades']?.toString())),
+          _buildInfoRow('Hist. Familiar:', _displayValue(patientData['historico_familiar']?.toString())),
+          _buildInfoRow('Familiar (Parentesco):', _displayValue(patientData['grau_parentesco']?.toString())),
+          
+          // --- Novos campos do formulário ---
+          const Divider(height: 24),
+          
+          _buildInfoRow(
+            'Alta com medicação?', 
+            _displayValue(patientData['alta_medicamento']?.toString())
+          ),
+          // Mostra "Qual?" apenas se a resposta for Sim
+          if (altaComMedicamento)
+            _buildInfoRow(
+              'Qual medicação (alta)?', 
+              _displayValue(patientData['alta_medicamento_qual']?.toString())
+            ),
+          
+          const SizedBox(height: 8), // Espaçador
+
+          _buildInfoRow(
+            'Usa medicação diária?', 
+            _displayValue(patientData['medicamento_uso_diario']?.toString())
+          ),
+          // Mostra "Qual?" apenas se a resposta for Sim
+          if (usaMedicamentoDiario)
+            _buildInfoRow(
+              'Qual medicação (diária)?', 
+              _displayValue(patientData['medicamento_uso_diario_qual']?.toString())
+            ),
         ],
       ),
     );
@@ -307,14 +265,22 @@ class PatientDetailScreen extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start, // Alinha no topo se o valor quebrar linha
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: TextStyle(fontSize: 15, color: Colors.grey[600])),
-          Text(value,
+          const SizedBox(width: 10), // Espaço entre label e valor
+          Expanded( // Permite que o valor quebre a linha se for muito longo
+            child: Text(
+              value,
+              textAlign: TextAlign.end, // Alinha o valor à direita
               style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87)),
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+          ),
         ],
       ),
     );

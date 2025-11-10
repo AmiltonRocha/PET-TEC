@@ -114,9 +114,11 @@ class _FamilyFormScreenState extends State<FamilyFormScreen> {
       }
     }
 
+    final String cleanCpf = widget.cpf.replaceAll(RegExp(r'[.-]'), '');
+
     final Map<String, dynamic> formData = {
       "nome": widget.name,
-      "cpf": widget.cpf,
+      "cpf": cleanCpf,
       "sexo": _sexo?.name,
       "faixa_etaria": _faixaEtaria,
       "grau_parentesco": _grauParentesco,
@@ -135,7 +137,7 @@ class _FamilyFormScreenState extends State<FamilyFormScreen> {
       });
     }
 
-    const String apiUrl = 'https://petsaudeg3.loca.lt/db/forms/postForm';
+    const String apiUrl = 'https://pet-tec-server.onrender.com/db/forms/postForm';
 
     try {
       final response = await http.post(
@@ -263,7 +265,18 @@ class _FamilyFormScreenState extends State<FamilyFormScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 16),
                     ),
                     onPressed: _isLoading ? null : _submitForm,
-                    child: const Text('Confirmar', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    
+                    child: 
+                    _isLoading
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2.0,
+                                    ),
+                                  )
+                    : const Text('Confirmar', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   ),
                 )
               ],

@@ -2,6 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'patient_detail_screen.dart';
 import 'professional_patient_form_screen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+Future<Map<String, dynamic>?> fetchPatientByCpf(String cpf) async {
+  final String cleanCpf = cpf.replaceAll(RegExp(r'[.-]'), '');
+  
+  final String apiUrl = "https://pet-tec-server.onrender.com/db/forms/getForm/$cleanCpf"; 
+
+  try {
+    final response = await http.get(Uri.parse(apiUrl));
+
+    if (response.statusCode == 200) {
+      print(response.body);
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    } else if (response.statusCode == 404) {
+      return null;
+    } else {
+      throw Exception('Falha ao verificar paciente: ${response.statusCode}');
+    }
+  } catch (e) {
+    throw Exception('Erro de rede: $e');
+  }
+}
 
 class CpfInputScreen extends StatefulWidget {
   const CpfInputScreen({super.key});
@@ -12,6 +35,8 @@ class CpfInputScreen extends StatefulWidget {
 
 class _CpfInputScreenState extends State<CpfInputScreen> {
   final TextEditingController _cpfController = TextEditingController();
+
+  bool _isLoading = false;
 
   final _cpfMaskFormatter = MaskTextInputFormatter(
     mask: '###.###.###-##',
@@ -121,6 +146,7 @@ class _CpfInputScreenState extends State<CpfInputScreen> {
                               inputFormatters: [_cpfMaskFormatter],
                               keyboardType: TextInputType.number,
                               textAlign: TextAlign.center,
+                              enabled: !_isLoading,
                               style: const TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
@@ -186,21 +212,60 @@ class _CpfInputScreenState extends State<CpfInputScreen> {
                                 ),
                                 elevation: 0,
                               ),
-                              onPressed: () {
-                                // Pega o CPF que o profissional digitou
-                                final String cpf = _cpfController.text;
-                                
-                                print('CPF confirmado: $cpf');
+                              onPressed: _isLoading ? null : () async  {
+                                final String cpfFormatted = _cpfController.text;
+                                final String cpfUnmasked = _cpfMaskFormatter.getUnmaskedText();
 
-                                // Envia o CPF para a tela de Detalhes
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => PatientDetailScreen(cpf: cpf),
-                                  ),
-                                );
+                                if (cpfUnmasked.length != 11) {
+                                  if (!mounted) return;
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Por favor, digite um CPF completo.')),
+                                  );
+                                  return;
+                                }
+
+                                setState(() { _isLoading = true; });
+
+                                try {
+                                  final Map<String, dynamic>? patientData = await fetchPatientByCpf(cpfUnmasked);
+
+                                  if (!mounted) return;
+
+                                  if (patientData != null) {
+                                    // Paciente encontrado, patientData contem o JSON
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => PatientDetailScreen(cpf: cpfFormatted, patientData: patientData),
+                                      ),
+                                    );
+                                  } else {
+                                    // Paciente não encontrado (404)
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Paciente não encontrado. Por favor, registre-o.')),
+                                    );
+                                  }
+                                } catch (e) {
+                                  if (!mounted) return;
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Erro ao conectar: $e')),
+                                  );
+                                } finally {
+                                  if (mounted) {
+                                    setState(() { _isLoading = false; });
+                                  }
+                                }
                               },
-                              child: const Text(
+                              child: _isLoading
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2.0,
+                                    ),
+                                  )
+                               : const Text(
                                 'Confirmar',
                                 style: TextStyle(
                                   fontSize: 18,
@@ -248,13 +313,11 @@ class _CpfInputScreenState extends State<CpfInputScreen> {
                                 ),
                                 elevation: 0,
                               ),
-                              onPressed: () {
-                                // Pega o CPF que o usuário digitou
+                              onPressed: _isLoading ? null : () {
                                 final String cpf = _cpfController.text;
                                 
                                 print('Navegando para tela de registro com o CPF: $cpf');
 
-                                // Envia o CPF para o construtor da PatientFormScreen
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -290,7 +353,7 @@ class _CpfInputScreenState extends State<CpfInputScreen> {
             left: 20,
             child: IconButton(
               icon: const Icon(Icons.arrow_circle_left_outlined, color: buttonColor, size: 50),
-              onPressed: () => Navigator.pop(context),
+              onPressed: _isLoading ? null : () => Navigator.pop(context),
             ),
           ),
         ],

@@ -201,7 +201,7 @@ class _FamilyMemberConfirmationScreenState
                           context,
                           MaterialPageRoute(
                               builder: (context) => FamilyFormScreen(
-                                  cpf: widget.cpfDoPaciente,
+                                  cpf: _pacienteCpfController.text,
                                   name: _nameController.text)),
                         );
                       },
