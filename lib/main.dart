@@ -68,15 +68,28 @@ class WelcomeScreen extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32.0),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
+                    const SizedBox(height: 40),
+                    
+                    // Logo
+                    Center(
+                      child: Image.asset(
+                        '../assets/logoPET.png',
+                        width: 250,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+
+                    const SizedBox(height: 25),
+
                     // Texto de boas-vindas
                     const Text(
                       'Bem vindo!',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 32,
                         fontWeight: FontWeight.bold,
                         color: textColor,
                       ),
@@ -90,67 +103,151 @@ class WelcomeScreen extends StatelessWidget {
                         color: textColor,
                       ),
                     ),
-                    const SizedBox(height: 60),
 
-                    // Logo
-                    Center(
-                      child: Image.asset(
-                        '../assets/logoPET.png',
-                        width: 180,
-                        fit: BoxFit.contain,
-                      ),
-                    ),
+                    const Spacer(),
 
-                    const SizedBox(height: 80),
+                    const SizedBox(height: 20),
 
                     // Botão Profissional
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: buttonColor,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    Center(
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.15,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                buttonColor,
+                                buttonColor.withOpacity(0.85),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(25),
+                            boxShadow: [
+                              BoxShadow(
+                                color: buttonColor.withOpacity(0.4),
+                                blurRadius: 12,
+                                spreadRadius: 1,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              foregroundColor: Colors.white,
+                              shadowColor: Colors.transparent,
+                              padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                              elevation: 0,
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const ProfessionalLoginScreen()),
+                              );
+                            },
+                            child: Center(
+                              child: SizedBox(
+                                width: 160,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    SizedBox(
+                                      width: 36,
+                                      child: const Icon(Icons.work_outline, size: 24),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    const Text(
+                                      'Profissional',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
-                        elevation: 4,
-                        shadowColor: buttonColor.withOpacity(0.4),
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const ProfessionalLoginScreen()),
-                        );
-                      },
-                      child: const Text(
-                        'Profissional',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ),
                     const SizedBox(height: 20),
 
                     // Botão Paciente
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: buttonColor,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    Center(
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.15,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                buttonColor,
+                                buttonColor.withOpacity(0.85),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(25),
+                            boxShadow: [
+                              BoxShadow(
+                                color: buttonColor.withOpacity(0.4),
+                                blurRadius: 12,
+                                spreadRadius: 1,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              foregroundColor: Colors.white,
+                              shadowColor: Colors.transparent,
+                              padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                              elevation: 0,
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const PatientSelectionScreen()),
+                              );
+                            },
+                            child: Center(
+                              child: SizedBox(
+                                width: 160,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    SizedBox(
+                                      width: 36,
+                                      child: const Icon(Icons.person_outline, size: 24),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    const Text(
+                                      'Paciente',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
-                        elevation: 4,
-                        shadowColor: buttonColor.withOpacity(0.4),
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const PatientSelectionScreen()),
-                        );
-                      },
-                      child: const Text(
-                        'Paciente',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ),
+                    
+                    const Spacer(),
                   ],
                 ),
               ),

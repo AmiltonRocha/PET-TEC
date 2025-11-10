@@ -57,113 +57,142 @@ class _ProfessionalLoginScreenState extends State<ProfessionalLoginScreen> {
 
           // Conteúdo principal
           SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  // Bloco superior
-                  Column(
-                    children: [
-                      const Text(
-                        'Bem vindo',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: textColor,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      // Banner "Profissional"
-                      Container(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        decoration: BoxDecoration(
-                          color: buttonColor,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: buttonColor.withOpacity(0.4),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: const Center(
-                          child: Text(
-                            'Profissional',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // Logo
-                  Center(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    const SizedBox(height: 40),
+                    
+                    // Logo
+                    Center(
                       child: Image.asset(
                         '../assets/logoPET.png',
-                        width: 180,
+                        width: 250,
                         fit: BoxFit.contain,
                       ),
                     ),
 
-                  Column(
-                    children: [
-                      // Campo de texto para o código
-                      TextField(
-                        controller: _authCodeController,
-                        textAlign: TextAlign.center,
-                        decoration: InputDecoration(
-                          hintText: 'Código de autorização:',
-                          hintStyle: TextStyle(color: Colors.grey.shade600),
-                          filled: true,
-                          fillColor: Colors.grey.shade200,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25.0),
-                            borderSide: BorderSide.none,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(vertical: 16),
-                        ),
-                        keyboardType: TextInputType.text,
-                      ),
-                      const SizedBox(height: 20),
+                    const SizedBox(height: 25),
 
-                      // Botão Entrar
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: accentBlue,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 50, vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                    // Texto de boas-vindas
+                    const Text(
+                      'Bem vindo!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: textColor,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    
+                    // Texto "Profissional" na mesma cor do "Selecione seu perfil"
+                    const Text(
+                      'Profissional!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: textColor,
+                      ),
+                    ),
+
+                    const Spacer(),
+
+                    const SizedBox(height: 20),
+
+                    Column(
+                      children: [
+                        // Campo de texto para o código (mais compacto)
+                        Center(
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.50,
+                            child: TextField(
+                              controller: _authCodeController,
+                              textAlign: TextAlign.center,
+                              decoration: InputDecoration(
+                                hintText: 'Código de autorização:',
+                                hintStyle: TextStyle(color: Colors.grey.shade600),
+                                filled: true,
+                                fillColor: Colors.grey.shade200,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(25.0),
+                                  borderSide: BorderSide.none,
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+                              ),
+                              keyboardType: TextInputType.text,
+                            ),
                           ),
                         ),
-                        onPressed: () {
-                          // Ação do botão ENTRAR
-                          print('Código digitado: ${_authCodeController.text}');
-                          /* Ainda tem que colocar a lógica para validar o código, mas sendo honesto não sei se é uma
-                             boa ideia o "profissional" ter que colocar o código, ao menos agora */
+                        const SizedBox(height: 20),
 
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const CpfInputScreen()),
-                          );
-                        },
-                        child: const Text(
-                          'ENTRAR',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        // Botão Entrar (mesmo tamanho do main.dart)
+                        Center(
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.15,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    buttonColor,
+                                    buttonColor.withOpacity(0.85),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(25),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: buttonColor.withOpacity(0.4),
+                                    blurRadius: 12,
+                                    spreadRadius: 1,
+                                    offset: const Offset(0, 6),
+                                  ),
+                                ],
+                              ),
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  foregroundColor: Colors.white,
+                                  shadowColor: Colors.transparent,
+                                  padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25),
+                                  ),
+                                  elevation: 0,
+                                ),
+                                onPressed: () {
+                                  // Ação do botão ENTRAR
+                                  print('Código digitado: ${_authCodeController.text}');
+                                  /* Ainda tem que colocar a lógica para validar o código, mas sendo honesto não sei se é uma
+                                     boa ideia o "profissional" ter que colocar o código, ao menos agora */
+
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const CpfInputScreen()),
+                                  );
+                                },
+                                child: const Text(
+                                  'ENTRAR',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+
+                    const Spacer(),
+                  ],
+                ),
               ),
             ),
           ),

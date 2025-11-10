@@ -215,7 +215,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
           
           // Botão Voltar
           Positioned(
-            bottom: 30, left: 20,
+            bottom: 10, left: 20,
             child: IconButton(
               icon: const Icon(Icons.arrow_circle_left_outlined, color: Colors.white, size: 50),
               onPressed: () => Navigator.pop(context),

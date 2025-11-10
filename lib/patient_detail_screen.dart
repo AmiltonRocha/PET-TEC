@@ -44,7 +44,9 @@ class PatientDetailScreen extends StatelessWidget {
       bottom: false,
       child: Container(
         width: double.infinity,
-        color: primaryBlue,
+        decoration: BoxDecoration(
+          color: primaryBlue.withOpacity(0.15),
+        ),
         child: Stack(
           clipBehavior: Clip.none,
           alignment: Alignment.center,
@@ -120,9 +122,12 @@ class PatientDetailScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
+          // Botões pequenos centralizados e mais compactos
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Expanded(
+              SizedBox(
+                width: MediaQuery.of(context).size.width * 0.35,
                 child: _buildSmallButton(
                   'Visualizar Dados',
                   () {
@@ -131,7 +136,8 @@ class PatientDetailScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 16),
-              Expanded(
+              SizedBox(
+                width: MediaQuery.of(context).size.width * 0.35,
                 child: _buildSmallButton(
                   'Atualiza Dados',
                   () {
@@ -147,19 +153,31 @@ class PatientDetailScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          _buildLargeButton(
-            'Cadastrar Saída',
-            () {
-              print('Cadastrando saída...');
-            },
-            isPrimary: true,
+          // Botão Cadastrar Saída (mais compacto)
+          Center(
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.35,
+              child: _buildLargeButton(
+                'Cadastrar Saída',
+                () {
+                  print('Cadastrando saída...');
+                },
+                isPrimary: true,
+              ),
+            ),
           ),
           const SizedBox(height: 12),
-          _buildLargeButton(
-            'LEITO A34',
-            () {
-              print('Abrindo detalhes do leito...');
-            },
+          // Botão LEITO A34 (mais compacto)
+          Center(
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.35,
+              child: _buildLargeButton(
+                'LEITO A34',
+                () {
+                  print('Abrindo detalhes do leito...');
+                },
+              ),
+            ),
           ),
         ],
       ),
@@ -199,7 +217,13 @@ class PatientDetailScreen extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         padding: const EdgeInsets.symmetric(vertical: 12),
       ),
-      child: Text(text, style: const TextStyle(fontWeight: FontWeight.bold)),
+      child: Text(
+        text,
+        style: const TextStyle(fontWeight: FontWeight.bold),
+        textAlign: TextAlign.center,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
     );
   }
 
@@ -212,9 +236,14 @@ class PatientDetailScreen extends StatelessWidget {
         foregroundColor: isPrimary ? const Color(0xFF006064) : const Color(0xFF00796B),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         padding: const EdgeInsets.symmetric(vertical: 16),
-        minimumSize: const Size(double.infinity, 50),
       ),
-      child: Text(text, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+      child: Text(
+        text,
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        textAlign: TextAlign.center,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
     );
   }
 
